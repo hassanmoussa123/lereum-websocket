@@ -33,7 +33,7 @@ type Socket struct {
 	ConnectionOptions ConnectionOptions
 	RequestHeader     http.Header
 	OnConnected       func(socket Socket)
-	OnTextMessage     func(message string, socket Socket, client interface{})
+	OnTextMessage     func(message string, socket Socket, client interface{}, user_data ...interface{})
 	OnBinaryMessage   func(data []byte, socket Socket)
 	OnConnectError    func(err error, socket Socket)
 	OnDisconnected    func(err error, socket Socket)
@@ -78,7 +78,7 @@ func (socket *Socket) setConnectionOptions() {
 	socket.WebsocketDialer.Subprotocols = socket.ConnectionOptions.Subprotocols
 }
 
-func (socket *Socket) Connect(client interface{}) {
+func (socket *Socket) Connect(client interface{}, user_data ...interface{}) {
 	var err error
 	var resp *http.Response
 	socket.setConnectionOptions()
@@ -154,7 +154,7 @@ func (socket *Socket) Connect(client interface{}) {
 			switch messageType {
 			case websocket.TextMessage:
 				if socket.OnTextMessage != nil {
-					socket.OnTextMessage(string(message), *socket, client)
+					socket.OnTextMessage(string(message), *socket, client, user_data)
 				}
 			case websocket.BinaryMessage:
 				if socket.OnBinaryMessage != nil {
